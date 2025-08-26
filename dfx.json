@@ -1,0 +1,18 @@
+{
+  "canisters": {
+    "ant-colony-icp-backend": {
+      "main": "src/ant-colony-icp-backend/main.mo",
+      "candid": "src/ant-colony-icp/ant_colony_project.did",
+      "type": "motoko"
+    }
+  },
+
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
