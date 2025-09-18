@@ -24,14 +24,14 @@ actor AntColony {
   // Define a matriz de feromônios como mutável
   type PheromoneMatrix = [[var Float]];
 
-  // Parâmetros para o algoritmo
-  let alpha : Float = 1.0; // Importância dos feromônios
-  let beta : Float = 2.0; // Importância da distância
-  let evaporationRate : Float = 0.5;
-  let Q : Float = 100.0; // Fator de depósito de feromônios
+  // Parâmetros para o algoritmo (agora mutáveis para reuso)
+  var alpha : Float = 1.0; // Importância dos feromônios
+  var beta : Float = 2.0; // Importância da distância
+  var evaporationRate : Float = 0.5;
+  var Q : Float = 100.0; // Fator de depósito de feromônios
 
-  // Inicializa o espaço do problema 
-  let problemSpace : ProblemSpace = {
+  // Inicializa o espaço do problema (mutável para reuso)
+  var problemSpace : ProblemSpace = {
       distances = [
         [0.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
         [2.0, 0.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0],
@@ -64,6 +64,31 @@ actor AntColony {
     // Inicializa a matriz de feromônios como mutável
     let initialPheromone : Float = 1.0;
     var pheromones : PheromoneMatrix = create2DMutableArray<Float>(problemSpace.numCities, problemSpace.numCities, initialPheromone);
+
+    // Permite configurar os parâmetros do algoritmo em tempo de execução
+    public func setParameters(newAlpha : Float, newBeta : Float, newEvaporationRate : Float, newQ : Float) : async () {
+      alpha := newAlpha;
+      beta := newBeta;
+      evaporationRate := newEvaporationRate;
+      Q := newQ;
+    };
+
+    // Permite configurar a matriz de distâncias (redefine feromônios)
+    public func setDistances(newDistances : [[Float]]) : async () {
+      let n = newDistances.size();
+      assert (n > 0);
+      // valida que é matriz quadrada
+      for (row in newDistances.vals()) {
+        if (row.size() != n) {
+          Debug.trap("Distances must be a non-empty square matrix");
+        };
+      };
+      problemSpace := {
+        distances = newDistances;
+        numCities = n;
+      };
+      pheromones := create2DMutableArray<Float>(n, n, initialPheromone);
+    };
 
     // Função para gerar um número aleatório entre 0 e max-1
     func randomNumber(max : Nat) : Nat {
@@ -173,7 +198,7 @@ actor AntColony {
   };
 
   // Função principal de otimização por colônia de formigas 
-  public func antColonyOptimization(maxIterations : Nat, colonySize : Nat) : async [Nat] {
+  public func antColonyOptimization(maxIterations : Nat, colonySize : Nat) : async ([Nat], Float) {
     var bestTour : [Nat] = [];
     var bestTourLength : Float = 1e38; // Reset para cada execução
 
@@ -199,6 +224,6 @@ actor AntColony {
       updatePheromones(colony);
     };
 
-    bestTour
+    (bestTour, bestTourLength)
   };
 };

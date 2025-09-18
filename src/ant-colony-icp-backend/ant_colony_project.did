@@ -1,3 +1,8 @@
 service : {
-    antColonyOptimization: (nat, nat) -> (vec nat) query;
+    // Executa ACO e retorna (melhor_tour, melhor_custo)
+    antColonyOptimization: (nat, nat) -> (vec nat, float64);
+    // Ajusta parâmetros do algoritmo: (alpha, beta, evaporationRate, Q)
+    setParameters: (float64, float64, float64, float64) -> ();
+    // Define a matriz de distâncias (quadrada)
+    setDistances: (vec vec float64) -> ();
 }
